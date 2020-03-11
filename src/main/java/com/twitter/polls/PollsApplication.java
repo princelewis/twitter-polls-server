@@ -8,20 +8,25 @@ import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
-
-//This houses @EnableAutoConfiguration
-//@Configuration
-//@ComponentScan
+//This annotation contains @Configuration, @EnableAutoConfiguration,
+//and @ComponentScan
 @SpringBootApplication
 
-//The main purpose of this is to access the class Jsr310JpaConverter
-//to convert the date classes we have on our entity to MySql
-//date-type when during persistence
-@EntityScan(basePackageClasses = Jsr310JpaConverters.class)
+//This tells springboot where to get Jsr310JpaConverters.class
+//so it can be used to convert dates created on our entity classes
+//to MySql datetime data type when persisting the entity on the database
+@EntityScan(
+        basePackageClasses = {
+                Jsr310JpaConverters.class
+        }
+)
 public class PollsApplication {
 
+    //This method runs once, immediately after dependency injection occurs
+    //The purpose is to set the default time of the application to UTC
     @PostConstruct
-    void init(){
+    void init() {
+
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
