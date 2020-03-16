@@ -20,7 +20,7 @@ public class User {
 
     @NotBlank
     private String email;
-    @OneToMany(fetch = FetchType.LAZY)
-    private Role roles;
+//    @OneToMany(fetch = FetchType.LAZY)
+//    private Role roles;
 
 }
