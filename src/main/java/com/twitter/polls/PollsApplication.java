@@ -1,16 +1,21 @@
 package com.twitter.polls;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
 //This annotation contains @Configuration, @EnableAutoConfiguration,
 //and @ComponentScan
-@SpringBootApplication
+@SpringBootApplication (exclude = {
+        org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
+})
 
 //This tells springboot where to get Jsr310JpaConverters.class
 //so it can be used to convert dates created on our entity classes
@@ -28,6 +33,11 @@ public class PollsApplication {
     void init() {
 
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
+
+    @Bean
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
     }
 
     public static void main(String[] args) {
