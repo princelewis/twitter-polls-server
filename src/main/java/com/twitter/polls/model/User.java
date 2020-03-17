@@ -1,10 +1,14 @@
 package com.twitter.polls.model;
 
 import lombok.Data;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -15,12 +19,21 @@ public class User {
     private Long id;
 
     @NotBlank
-    @Size(max = 40)
+    @Size(max = 15)
     private String username;
 
     @NotBlank
+    @Size(max = 40)
+    @Email
+    @NaturalId
     private String email;
-//    @OneToMany(fetch = FetchType.LAZY)
-//    private Role roles;
+
+    @NotBlank
+    @Size(max = 100)
+    private String password;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private Set<Role> roles = new HashSet<>();
+
 
 }
