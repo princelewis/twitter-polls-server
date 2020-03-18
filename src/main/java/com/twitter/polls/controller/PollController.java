@@ -12,9 +12,4 @@ public class PollController {
     public String sayHello(){
         return "Hello World!";
     }
-
-    @GetMapping("/hello")
-    public String sayHellox(){
-        return "Hello World!";
-    }
 }
