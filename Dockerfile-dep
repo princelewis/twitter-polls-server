@@ -1,0 +1,12 @@
+FROM openjdk:8-jdk-alpine
+
+# Install project dependencies and keep sources
+# make source folder
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+# copy other source files (keep in image)
+COPY . /usr/src/app
+
+
+RUN ./mvnw -T 1C install -Dmaven.test.skip=true && rm -rf target
