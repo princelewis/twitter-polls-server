@@ -22,9 +22,9 @@ import java.util.TimeZone;
 //to MySql datetime data type when persisting the entity on the database
 @EntityScan(
         basePackageClasses = {
-                Jsr310JpaConverters.class
-        }
-)
+                Jsr310JpaConverters.class,
+                PollsApplication.class
+        })
 public class PollsApplication {
 
     //This method runs once, immediately after dependency injection occurs
