@@ -1,5 +1,6 @@
 package com.twitter.polls.model;
 
+import com.twitter.polls.model.audit.DateAudit;
 import lombok.Data;
 import org.hibernate.annotations.NaturalId;
 
@@ -12,13 +13,25 @@ import java.util.Set;
 
 
 @Data
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {
+                "username"
+        }),
+        @UniqueConstraint(columnNames = {
+                "email"
+        })
+})
 @Entity
-public class User {
+public class User extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
+
+    @NotBlank
+    @Column(name = "name")
+    @Size(max = 40)
+    private String name;
 
     @NotBlank
     @Size(max = 15)
@@ -38,45 +51,20 @@ public class User {
     private String password;
 
     @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     private Set<Role> roles = new HashSet<>();
 
-    public Long getId() {
-        return id;
+    public User(){
+
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
+    public User(String name, String username, String email, String password){
+        this.name = name;
         this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
     }
 }
