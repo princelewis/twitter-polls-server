@@ -27,10 +27,11 @@ public class DateAudit {
 
 //    @CreationTimestamp
     @CreatedDate
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
 //    @UpdateTimestamp
     @LastModifiedDate
+    @Column(nullable = false)
     private Instant updatedAt;
 }
