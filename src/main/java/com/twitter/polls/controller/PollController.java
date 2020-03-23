@@ -6,6 +6,8 @@ import com.twitter.polls.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/polls")
 public class PollController {
@@ -22,7 +24,7 @@ public class PollController {
     }
 
     @PostMapping("/table")
-    public String postTable(@RequestBody User user){
+    public String postTable(@RequestBody @Valid User user){
         userRepository.save(user);
         return "Done";
 
