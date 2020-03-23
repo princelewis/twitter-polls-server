@@ -1,20 +1,40 @@
 package com.twitter.polls.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.twitter.polls.dto.LoginRequest;
+import com.twitter.polls.model.User;
+import com.twitter.polls.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/polls")
 public class PollController {
+
+    private UserRepository userRepository;
+    @Autowired
+    public PollController(UserRepository userRepository){
+        this.userRepository = userRepository;
+    }
 
     @GetMapping("/hello")
     public String sayHello(){
         return "Hello World!";
     }
 
-    @GetMapping("/hello")
-    public String sayHellox(){
-        return "Hello World!";
+    @PostMapping("/table")
+    public String postTable(@RequestBody @Valid User user){
+        userRepository.save(user);
+        return "Done";
+
+    }
+
+    @PutMapping("/update")
+    public String updateTable(){
+        User user = userRepository.findById(1l).orElseThrow(() -> new Error("Not available"));
+        user.setName("nkechi");
+        userRepository.save(user);
+        return "updated";
     }
 }
