@@ -13,9 +13,7 @@ import java.util.TimeZone;
 
 //This annotation contains @Configuration, @EnableAutoConfiguration,
 //and @ComponentScan
-@SpringBootApplication (exclude = {
-        org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
-})
+@SpringBootApplication
 
 //This tells springboot where to get Jsr310JpaConverters.class
 //so it can be used to convert dates created on our entity classes
