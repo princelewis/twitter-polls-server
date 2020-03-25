@@ -50,13 +50,10 @@ public class User extends DateAudit {
     @Column(name = "password")
     private String password;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
 
+//    private Set<Role> roles = new HashSet<>();
+    private Role role;
     public User(){
 
     }
