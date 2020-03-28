@@ -1,5 +1,6 @@
 package com.twitter.polls.config;
 
+import com.twitter.polls.security.JwtAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -76,7 +77,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatcher("/", "/favico.ico",
+                .antMatcher("/",
+                        "/favico.ico",
                         "/**/*.png",
                         "/**/*.gif",
                         "/**/*.svg",
@@ -91,6 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatcher(HttpMethod.GET,"/api/polls/**", "/api/users/**")
                 .permitAll()
+                //Any other request that is not any of the above mentioned , will need to be authenticated first.
                 .anyRequest()
                 .authenticated();
 
