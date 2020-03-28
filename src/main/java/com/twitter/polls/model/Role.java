@@ -22,7 +22,7 @@ public class Role {
     @Column(length = 60)
     private RoleName name;
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
