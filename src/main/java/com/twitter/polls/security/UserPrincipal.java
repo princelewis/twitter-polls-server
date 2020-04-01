@@ -32,6 +32,12 @@ public class UserPrincipal implements UserDetails {
     //to SimpleGrantedAuthority datatype which is later converted to the GrantedAuthority
     //We are converting the roles to that because this is the customised name the AuthenticationMaanger
     //will look for.
+
+    /**
+     *
+     * @param user
+     * @return
+     */
     public static UserPrincipal create(User user) {
         List<GrantedAuthority> authorities = user.getRole().stream().map(role ->
                 new SimpleGrantedAuthority(role.getName().name())
