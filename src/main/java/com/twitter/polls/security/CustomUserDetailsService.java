@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
@@ -15,6 +16,7 @@ import javax.transaction.Transactional;
 //the interface AuthenticationManger needs to access the database to
 //authenticate a user. Look at it like a service class for retrieving data
 //from the database
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
