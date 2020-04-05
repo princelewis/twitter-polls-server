@@ -1,4 +1,5 @@
 package com.twitter.polls.security;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.twitter.polls.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,9 +15,17 @@ public class UserPrincipal implements UserDetails {
     private Long id;
     private String name;
     private String username;
+
+    @JsonIgnore
     private String email;
+
+    @JsonIgnore
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
+
+    public UserPrincipal(){
+
+    }
 
     public UserPrincipal(Long id, String name, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
@@ -32,6 +41,12 @@ public class UserPrincipal implements UserDetails {
     //to SimpleGrantedAuthority datatype which is later converted to the GrantedAuthority
     //We are converting the roles to that because this is the customised name the AuthenticationMaanger
     //will look for.
+
+    /**
+     *
+     * @param user
+     * @return
+     */
     public static UserPrincipal create(User user) {
         List<GrantedAuthority> authorities = user.getRole().stream().map(role ->
                 new SimpleGrantedAuthority(role.getName().name())
