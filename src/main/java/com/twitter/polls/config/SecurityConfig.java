@@ -2,6 +2,7 @@ package com.twitter.polls.config;
 
 import com.twitter.polls.security.CustomUserDetailsService;
 import com.twitter.polls.security.JwtAuthenticationEntryPoint;
+import com.twitter.polls.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -78,7 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatcher("/",
+                .antMatchers("/",
                         "/favico.ico",
                         "/**/*.png",
                         "/**/*.gif",
@@ -88,11 +89,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.html",
                         "/**/*.js")
                 .permitAll()
-                .antMatcher("/api/auth/**")
+                .antMatchers("/api/auth/**")
                 .permitAll()
-                .antMatcher("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
+                .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
                 .permitAll()
-                .antMatcher(HttpMethod.GET,"/api/polls/**", "/api/users/**")
+                .antMatchers(HttpMethod.GET,"/api/polls/**", "/api/users/**")
                 .permitAll()
                 //Any other request that is not any of the above mentioned , will need to be authenticated first.
                 .anyRequest()
@@ -100,6 +101,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         //Add our customer JWT security filter
         //Here we add JwtAuthenticationFilter before we call the authenticated method.
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }
