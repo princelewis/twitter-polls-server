@@ -2,7 +2,6 @@ package com.twitter.polls.security;
 
 import com.twitter.polls.model.User;
 import com.twitter.polls.repository.UserRepository;
-import jdk.internal.org.jline.reader.UserInterruptException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,10 +34,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     //This method is used by JWTAuthenticationFilter
     @Transactional
-    public UserDetails loadUserById(Long id){
+    public UserDetails loadUserById(Long id) throws UsernameNotFoundException{
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
-                        new UserInterruptException("user not found with id :" + id));
+                        new UsernameNotFoundException("user not found with id :" + id));
         return UserPrincipal.create(user);
     }
 }
