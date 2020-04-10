@@ -4,12 +4,21 @@ import com.twitter.polls.model.Role;
 import com.twitter.polls.model.RoleName;
 import com.twitter.polls.model.User;
 import com.twitter.polls.payload.ApiResponse;
+import com.twitter.polls.payload.JwtAuthenticationResponse;
+import com.twitter.polls.payload.LoginRequest;
 import com.twitter.polls.payload.SignUpRequest;
 import com.twitter.polls.repository.RoleRepository;
 import com.twitter.polls.repository.UserRepository;
+import com.twitter.polls.security.CustomUserDetailsService;
+import com.twitter.polls.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +32,10 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
     @Autowired
     UserRepository userRepository;
 
@@ -31,6 +44,12 @@ public class AuthenticationController {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody @Valid SignUpRequest signUpRequest) throws Exception {
@@ -61,6 +80,25 @@ public class AuthenticationController {
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         }
 
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest){
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsernameOrEmail(),
+                        loginRequest.getPassword()
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = jwtTokenProvider.generateToken(authentication);
+
+        JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse(jwt);
+
+        return new ResponseEntity<>(jwtAuthenticationResponse,HttpStatus.OK);
     }
 
 }
