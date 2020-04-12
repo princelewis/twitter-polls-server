@@ -7,6 +7,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
+
+//This is for globally configuring the whole application to allow other
+//origins(apps) to connect to it.
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private static final long MAX_AGE_SECS = 3600;
