@@ -23,4 +23,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 "POST", "PUT", "PATCH", "DELETE")
                 .maxAge(MAX_AGE_SECS);
     }
+
 }
