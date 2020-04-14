@@ -1,6 +1,7 @@
 package com.twitter.polls.repository;
 
 import com.twitter.polls.model.Poll;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +15,7 @@ public interface PollRepository extends JpaRepository<Poll, Long> {
 
     Optional<Poll> findById(Long pollId);
 
-    Optional<Poll> findByCreatedBy(Long UserId, Pageable pageable);
+    Page<Poll> findByCreatedBy(Long UserId, Pageable pageable);
 
     long countByCreatedBy(Long userId);
 
