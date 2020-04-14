@@ -21,9 +21,9 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     //For a particular poll
     @Query("SELECT NEW com.twitter.polls.model.ChoiceVoteCount(v.choice.id, count(v.id)) FROM Vote v WHERE v.poll.id = :pollId GROUP BY v.choice.id ")
-    List<ChoiceVoteCount> countByPollIdGroupByChoiceId(@Param("PollId") Long pollId);
+    List<ChoiceVoteCount> countByPollIdGroupByChoiceId(@Param("pollId") Long pollId);
 
-    @Query("SELECT v FROM Vote v WHERE v.user.id = : userId AND v.poll.id in :pollIds")
+    @Query("SELECT v FROM Vote v WHERE v.user.id = :userId AND v.poll.id in :pollIds")
     List<Vote> findByUserIdAndPollIdIn(@Param("userId") Long userId, @Param("pollIds") List<Long> pollIds);
 
     @Query("SELECT v FROM Vote v where v.user.id = :userId and v.poll.id = :pollId")
