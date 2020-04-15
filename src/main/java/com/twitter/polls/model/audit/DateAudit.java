@@ -16,8 +16,8 @@ import java.time.Instant;
 @MappedSuperclass // This designates a class whose mapping
 //information is applied to the entities that inherits from it
 @Data
-@Getter(AccessLevel.PROTECTED)
-@Setter(AccessLevel.PROTECTED)
+//@Getter(AccessLevel.PROTECTED)
+//@Setter(AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class) //This is used to specify
 //listener classes which will listen for the event of the entities through some annotated methods
 public class DateAudit {
