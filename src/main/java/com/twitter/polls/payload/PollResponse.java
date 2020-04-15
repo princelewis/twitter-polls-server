@@ -12,7 +12,7 @@ public class PollResponse {
 
     private Long id;
     private String question;
-    private List<ChoiceRequest> choices;
+    private List<ChoiceResponse> choices;
     private UserSummary createdBy;
     private Instant creationDateTime;
     private Instant expirationDateTime;

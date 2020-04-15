@@ -16,8 +16,8 @@ import java.time.Instant;
 
 @MappedSuperclass
 @Data
-@Getter(AccessLevel.PROTECTED)
-@Setter(AccessLevel.PROTECTED)
+//@Getter(AccessLevel.PROTECTED)
+//@Setter(AccessLevel.PROTECTED)
 @JsonIgnoreProperties(
         value = {"createdBy", "updatedBy"},
         allowGetters = true
