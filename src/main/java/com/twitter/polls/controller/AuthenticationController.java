@@ -64,6 +64,7 @@ public class AuthenticationController {
         } else{
             Role role =  roleRepository.findByName(RoleName.ROLE_USER)
                     .orElseThrow(() -> new RoleNotFoundException("ROLE_USER not found"));
+
             String hashedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
             User user = new User(signUpRequest.getName(),
