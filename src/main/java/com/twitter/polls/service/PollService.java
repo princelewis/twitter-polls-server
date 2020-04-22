@@ -1,11 +1,9 @@
 package com.twitter.polls.service;
 
 import com.twitter.polls.exception.BadRequestException;
-import com.twitter.polls.model.ChoiceVoteCount;
-import com.twitter.polls.model.Poll;
-import com.twitter.polls.model.User;
-import com.twitter.polls.model.Vote;
+import com.twitter.polls.model.*;
 import com.twitter.polls.payload.PagedResponse;
+import com.twitter.polls.payload.PollRequest;
 import com.twitter.polls.payload.PollResponse;
 import com.twitter.polls.repository.PollRepository;
 import com.twitter.polls.repository.UserRepository;
@@ -22,6 +20,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,7 @@ public class PollService {
 
     private static final Logger logger = LoggerFactory.getLogger(PollService.class);
 
+    //This is for getting all the polls the authenticated user has interfaced - interacted - with
     public PagedResponse<PollResponse> getAllPolls(UserPrincipal currentUser, int page, int size){
         validatePageNumberAndSize(page, size);
 
@@ -57,11 +59,18 @@ public class PollService {
         }
 
         //Map polls to PollResponses containing vote counts and poll creator details
+        //Basically what is going on here is that we need to convert the collection of polls which is in page data type
+        //to list of pollIds. The way to convert a collection in Page data type is to use the .getContent method on the
+        //paged collection.
         List<Long> pollIds = polls.map(Poll::getId).getContent();
+
+        //This is to get a map of the choiceIds and their corresponding vote counts for all pollIds
         Map<Long, Long> choiceVoteCountMap = getChoiceVoteCountMap(pollIds);
 
+        //To get a map of all the pollIds and the corresponding vote choice the authenticated user made
         Map<Long, Long> pollUserVoteMap = getPollUserVoteMap(currentUser, pollIds);
 
+        //To get the userId (creatorId) and the corresponding User details as stored in the database
         Map<Long, User> creatorMap = getPollCreatorMap(polls.getContent());
 
         List<PollResponse> pollResponseList = polls
@@ -73,6 +82,26 @@ public class PollService {
 
         return new PagedResponse<>(pollResponseList, polls.getNumber(), polls.getSize(),
                 polls.getTotalElements(), polls.getTotalPages(), polls.isLast());
+    }
+
+
+    public Poll createPoll(PollRequest pollRequest){
+        Poll poll = new Poll();
+
+        poll.setQuestion(pollRequest.getQuestion());
+
+        pollRequest.getChoices().forEach(choiceRequest -> {
+            poll.addChoice(new Choice(choiceRequest.getText()));
+        });
+
+        Instant now = Instant.now();
+
+        Instant expirationDateTime = now.plus(Duration.ofDays(pollRequest.getPollLength().getDays()))
+                .plus(Duration.ofHours(pollRequest.getPollLength().getHours()));
+
+        poll.setExpirationDateTime(expirationDateTime);
+
+        return pollRepository.save(poll);
     }
 
     private Map<Long, User> getPollCreatorMap(List<Poll> polls){
