@@ -1,6 +1,7 @@
 package com.twitter.polls.service;
 
 import com.twitter.polls.exception.BadRequestException;
+import com.twitter.polls.exception.ResourceNotFoundException;
 import com.twitter.polls.model.*;
 import com.twitter.polls.payload.PagedResponse;
 import com.twitter.polls.payload.PollRequest;
@@ -58,7 +59,7 @@ public class PollService {
                     polls.getSize(),polls.getTotalElements(), polls.getTotalPages(), polls.isLast() );
         }
 
-        //Map polls to PollResponses containing vote counts and poll creator details
+        //Map polls to PollResponses containing vote counts and poll creator's details
         //Basically what is going on here is that we need to convert the collection of polls which is in page data type
         //to list of pollIds. The way to convert a collection in Page data type is to use the .getContent method on the
         //paged collection.
@@ -103,6 +104,43 @@ public class PollService {
 
         return pollRepository.save(poll);
     }
+
+
+    public PollResponse getPollById(Long pollId, UserPrincipal currentUser){
+
+        Poll poll = pollRepository.findById(pollId)
+                .orElseThrow(() -> new ResourceNotFoundException("Poll","id", pollId));
+
+
+        //Trial section - It could be written in this way.
+//        Map<Long, Long> pollUserVoteMap = getPollUserVoteMap(currentUser, Collections.singletonList(pollId));
+//        Map<Long, Long> choiceVoteMap = getChoiceVoteCountMap(Collections.singletonList(pollId));
+
+//        Map<Long, User> pollCreatorMap = getPollCreatorMap(Collections.singletonList(poll));
+//        User pollCreator = poll.
+
+        //Retrieve Vote Counts of every choice belonging to the current poll
+
+        List<ChoiceVoteCount> votes = voteRepository.countByPollIdGroupByChoiceId(pollId);
+
+        Map<Long, Long> choiceVotesMap = votes.stream()
+                .collect(Collectors.toMap(ChoiceVoteCount::getChoiceId, ChoiceVoteCount::getVoteCount));
+
+        //Retrieve poll creator details
+        User creator = userRepository.findById(poll.getCreatedBy())
+                .orElseThrow(() -> new ResourceNotFoundException("User","Id", poll.getCreatedBy()));
+
+        //Retrieve vote done by logged in user
+        Vote userVote = null;
+
+        if(currentUser != null){
+            userVote = voteRepository.findByUserIdAndPollId(currentUser.getId(), pollId);
+        }
+
+        return ModelMapper.mapPollToPollResponse(poll, choiceVotesMap,
+                creator, userVote != null ? userVote.getChoice().getId() : null);
+    }
+
 
     private Map<Long, User> getPollCreatorMap(List<Poll> polls){
         //Get poll Creator details of the given list of polls
