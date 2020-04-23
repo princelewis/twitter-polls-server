@@ -50,4 +50,11 @@ public class PollController {
         return ResponseEntity.created(location)
             .body(new ApiResponse(true,"Poll Created Successfully"));
     }
+
+    @GetMapping("/{pollId}")
+    public PollResponse getPollById(@CurrentUser UserPrincipal currentUser,
+                                    @PathVariable Long pollId) {
+
+        return pollService.getPollById(pollId, currentUser);
+    }
 }
