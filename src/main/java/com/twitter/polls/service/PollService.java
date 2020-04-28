@@ -6,6 +6,7 @@ import com.twitter.polls.model.*;
 import com.twitter.polls.payload.PagedResponse;
 import com.twitter.polls.payload.PollRequest;
 import com.twitter.polls.payload.PollResponse;
+import com.twitter.polls.payload.VoteRequest;
 import com.twitter.polls.repository.PollRepository;
 import com.twitter.polls.repository.UserRepository;
 import com.twitter.polls.repository.VoteRepository;
@@ -15,6 +16,7 @@ import com.twitter.polls.util.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +26,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalUnit;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -106,6 +105,9 @@ public class PollService {
     }
 
 
+    //When a user seeks to view a poll, it should return the poll details with
+    //other details like the vote the user made on the poll and total votes
+    //made on the poll
     public PollResponse getPollById(Long pollId, UserPrincipal currentUser){
 
         Poll poll = pollRepository.findById(pollId)
@@ -141,6 +143,55 @@ public class PollService {
                 creator, userVote != null ? userVote.getChoice().getId() : null);
     }
 
+
+    //Service that handles casting of vote
+    public PollResponse castVoteAndGetUpdatedPoll(Long pollId, VoteRequest voteRequest, UserPrincipal currentUser){
+        //Trial
+
+        Poll poll = pollRepository.findById(pollId)
+                .orElseThrow(() -> new ResourceNotFoundException("Poll","id", pollId));
+        if(poll.getExpirationDateTime().isBefore(Instant.now())){
+            throw new BadRequestException("Sorry! This poll has already expired");
+        }
+
+        User user = userRepository.getOne(currentUser.getId());
+
+        Choice selectedChoice = poll.getChoices().stream()
+                .filter(choice -> choice.getId().equals(voteRequest.getChoiceId()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Choice", "id", voteRequest.getChoiceId()));
+
+
+        Vote vote = new Vote();
+        vote.setChoice(selectedChoice);
+        vote.setPoll(poll);
+        vote.setUser(user);
+
+        try{
+            Vote returnedVote = voteRepository.save(vote);
+            //If you have an entity that has more than two foreign keys, MySql prevents
+            //identical entries in more than one row. Due to this, a user, as in the case of this app
+            // cannot vote on the same poll more than once. When an error as such occurs it is embedded
+            //in the DataIntegrityViolationException
+        } catch (DataIntegrityViolationException ex){
+            logger.error("User {} has already voted in poll {}", currentUser.getId(), pollId);
+            throw new BadRequestException("Sorry! you have already cast your vote in this poll");
+        }
+
+        //-- Vote saved, return the updated poll response now --
+
+
+        // Retrieve Vote Count of every choice belonging to the current poll
+        List<ChoiceVoteCount> choiceVoteCounts = voteRepository.countByPollIdGroupByChoiceId(pollId);
+
+        Map<Long, Long> choiceVotesMap = choiceVoteCounts.stream().collect(Collectors.toMap(ChoiceVoteCount::getChoiceId,ChoiceVoteCount::getVoteCount));
+
+        //Retrieve poll creator details
+        User creator = userRepository.findById(poll.getCreatedBy())
+                .orElseThrow(() -> new ResourceNotFoundException("Creator","id",poll.getCreatedBy()));
+
+        return ModelMapper.mapPollToPollResponse(poll,choiceVotesMap,creator,vote.getChoice().getId());
+    }
 
     private Map<Long, User> getPollCreatorMap(List<Poll> polls){
         //Get poll Creator details of the given list of polls
