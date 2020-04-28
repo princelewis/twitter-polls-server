@@ -1,10 +1,7 @@
 package com.twitter.polls.controller;
 
 import com.twitter.polls.model.Poll;
-import com.twitter.polls.payload.ApiResponse;
-import com.twitter.polls.payload.PagedResponse;
-import com.twitter.polls.payload.PollRequest;
-import com.twitter.polls.payload.PollResponse;
+import com.twitter.polls.payload.*;
 import com.twitter.polls.security.CurrentUser;
 import com.twitter.polls.security.UserPrincipal;
 import com.twitter.polls.service.PollService;
@@ -56,5 +53,13 @@ public class PollController {
                                     @PathVariable Long pollId) {
 
         return pollService.getPollById(pollId, currentUser);
+    }
+
+    @PostMapping("/{pollId}/votes")
+    @PreAuthorize("hasRole('USER')")
+    public PollResponse castVote(@CurrentUser UserPrincipal currentUser,
+                                 @PathVariable Long pollId,
+                                 @Valid @RequestBody VoteRequest voteRequest){
+        return pollService.castVoteAndGetUpdatedPoll(pollId, voteRequest, currentUser);
     }
 }
